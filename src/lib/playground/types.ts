@@ -1,4 +1,4 @@
-export type ObjectKind = "router" | "receiver" | "person" | "wall" | "desk" | "couch";
+export type ObjectKind = "router" | "receiver" | "person" | "wall" | "desk" | "couch" | "cabinet" | "laptop";
 export type Material = "drywall" | "glass" | "wood" | "concrete" | "metal";
 
 export interface SceneObject {
@@ -11,6 +11,7 @@ export interface SceneObject {
   strength?: number;
   material?: Material;
   rotation?: number;
+  width?: number;
 }
 
 export interface ReceiverReading {

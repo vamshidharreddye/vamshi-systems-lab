@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
-import { XRayProvider } from "@/components/xray/XRayProvider";
+import { SystemShell } from "@/components/shell/SystemShell";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true }
 };
 
-export const viewport: Viewport = { themeColor: "#070a0c", colorScheme: "dark", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#020817", colorScheme: "dark", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body className={`${instrument.variable} ${plexMono.variable}`}><XRayProvider>{children}</XRayProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body className={`${instrument.variable} ${plexMono.variable}`}><SystemShell>{children}</SystemShell></body></html>;
 }

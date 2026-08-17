@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --surface-root: #070a0c;
-  --surface-primary: #0b0f12;
-  --surface-secondary: #10161a;
-  --surface-elevated: #131a1f;
+  --surface-root: #020817;
+  --surface-primary: #061126;
+  --surface-secondary: #091a36;
+  --surface-elevated: #0a1c3b;
   --surface-faint: rgba(219,237,239,.035);
   --border-subtle: rgba(206,228,229,.105);
   --border-strong: rgba(213,237,238,.22);
-  --text-primary: #edf2ef;
-  --text-secondary: #aebbb8;
-  --text-tertiary: #6f7d7b;
-  --signal-active: #68d8ce;
-  --signal-active-rgb: 104,216,206;
+  --text-primary: #f2f7ff;
+  --text-secondary: #a7bad8;
+  --text-tertiary: #637da8;
+  --signal-active: #4cb8ff;
+  --signal-active-rgb: 76,184,255;
   --signal-success: #84d39c;
   --signal-warning: #d6b36a;
   --signal-error: #df7c7c;
@@ -26,12 +26,12 @@
 
 * { box-sizing: border-box; }
 html { color-scheme: dark; scroll-behavior: smooth; background: var(--surface-root); }
-body { margin: 0; min-width: 320px; background: var(--surface-root); color: var(--text-primary); font-family: var(--font-sans); text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-body::before { content: ""; position: fixed; inset: 0; z-index: -5; pointer-events: none; background: linear-gradient(112deg,rgba(93,152,152,.024),transparent 34%,rgba(116,103,190,.018) 70%,transparent); }
+body { margin: 0; min-width: 320px; overflow-x: clip; background: var(--surface-root); color: var(--text-primary); font-family: var(--font-sans); text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -5; pointer-events: none; background: radial-gradient(circle at 72% 18%,rgba(25,91,255,.16),transparent 34%),radial-gradient(circle at 18% 76%,rgba(79,46,210,.12),transparent 38%),linear-gradient(145deg,#020817,#061330 52%,#020817); }
 ::selection { color: #06100f; background: var(--signal-active); }
 a,button,input,select,textarea { -webkit-tap-highlight-color: transparent; }
 button,input,textarea,select { font: inherit; }
-button { border-radius: 0; }
+button { border-radius: 999px; }
 :focus-visible { outline: 2px solid var(--signal-active); outline-offset: 3px; }
 .skip-link { position: fixed; z-index: 200; left: 16px; top: 12px; transform: translateY(-160%); padding: 10px 14px; background: var(--text-primary); color: var(--surface-root); font-weight: 700; text-decoration: none; transition: transform 140ms ease; }
 .skip-link:focus { transform: translateY(0); }

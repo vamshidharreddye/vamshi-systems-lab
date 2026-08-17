@@ -11,6 +11,9 @@ export const siteConfig = {
 } as const;
 
 export const primaryNavigation = [
-  { label: "Playground", href: "/" },
+  { label: "Home", href: "/" },
+  { label: "Playground", href: "/playground" },
+  { label: "AI Radar", href: "/ai-radar" },
+  { label: "AI Vision", href: "/ai-vision" },
   { label: "About", href: "/about" }
 ] as const;

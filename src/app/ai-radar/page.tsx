@@ -1,0 +1,5 @@
+import { ArrowUpRight } from "lucide-react";
+import { getSignalFeed } from "@/lib/signals";
+import styles from "./Radar.module.css";
+export const dynamic="force-dynamic";
+export default async function AIRadarPage(){const feed=await getSignalFeed();return <main id="main-content" className={styles.radar}><div className={styles.glow}/><header><p>AI RADAR / CONTINUOUS INTELLIGENCE</p><h1>What changed?</h1><div><span><i/> {feed.mode.toUpperCase()} STREAM</span><p>A calm, source-first view of meaningful movement across models, agents, research, infrastructure and security.</p></div></header><section className={styles.stream}>{feed.items.slice(0,12).map((item,i)=><a href={item.url} target="_blank" rel="noreferrer" className={styles.signal} key={item.id}><span className={styles.rank}>{String(i+1).padStart(2,"0")}</span><span className={styles.pulse}/><div><small>{item.category} / {item.source}</small><h2>{item.title}</h2><p>{item.excerpt}</p></div><ArrowUpRight/></a>)}</section><footer>CURATED + LIVE SOURCES / BUILDER-FOCUSED / NO GENERATED CLAIMS</footer></main>}

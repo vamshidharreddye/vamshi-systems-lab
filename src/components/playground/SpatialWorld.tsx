@@ -54,9 +54,11 @@ function SceneObjectMesh({ object, selected, reading, xray, onSelect }: { object
     {object.kind === "router" && <group {...common}><RoundedBox args={[1.05, .22, .72]} radius={.1} position={[0, .18, 0]}><meshStandardMaterial color="#132c43" metalness={.55} roughness={.28} emissive={color} emissiveIntensity={object.power === false ? .02 : .22} /></RoundedBox><mesh position={[-.28,.42,0]}><cylinderGeometry args={[.025,.025,.55,10]} /><meshStandardMaterial color={color} emissive={color} /></mesh><mesh position={[.28,.42,0]}><cylinderGeometry args={[.025,.025,.55,10]} /><meshStandardMaterial color={color} emissive={color} /></mesh></group>}
     {object.kind === "receiver" && <group {...common}><mesh position={[0,.42,0]}><cylinderGeometry args={[.32,.38,.82,32]} /><meshStandardMaterial color="#182339" metalness={.5} roughness={.26} /></mesh><mesh position={[0,.84,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.18,.25,32]} /><meshBasicMaterial color={reading?.quality === "Disconnected" ? "#30435a" : color} /></mesh></group>}
     {object.kind === "person" && <group {...common}><mesh position={[0,.82,0]}><capsuleGeometry args={[.25,.85,8,16]} /><meshStandardMaterial color="#9ab1c5" roughness={.55} /></mesh><mesh position={[0,1.55,0]}><sphereGeometry args={[.25,24,16]} /><meshStandardMaterial color="#b5c7d6" roughness={.6} /></mesh></group>}
-    {object.kind === "wall" && <mesh {...common} position={[0,1.15,0]}><boxGeometry args={[3.2,2.3,.18]} /><meshStandardMaterial color={object.material === "glass" ? "#5b90ad" : object.material === "metal" ? "#536271" : "#304962"} transparent={object.material === "glass"} opacity={object.material === "glass" ? .38 : 1} metalness={object.material === "metal" ? .8 : .15} roughness={.52} /></mesh>}
+    {object.kind === "wall" && <mesh {...common} position={[0,1.15,0]}><boxGeometry args={[object.width??3.2,2.3,.14]} /><meshPhysicalMaterial color={object.material === "glass" ? "#65a9dc" : object.material === "metal" ? "#536f91" : "#284a73"} transparent={object.material === "glass"} opacity={object.material === "glass" ? .3 : 1} transmission={object.material === "glass"?.5:0} metalness={object.material === "metal" ? .8 : .1} roughness={.42} /></mesh>}
     {object.kind === "desk" && <group {...common}><mesh position={[0,.72,0]}><boxGeometry args={[2,.12,1]} /><meshStandardMaterial color="#31485d" /></mesh>{[-.8,.8].flatMap((x)=>[-.35,.35].map((z)=><mesh key={`${x}-${z}`} position={[x,.34,z]}><boxGeometry args={[.09,.72,.09]} /><meshStandardMaterial color="#213445" /></mesh>))}</group>}
     {object.kind === "couch" && <group {...common}><RoundedBox args={[2.1,.5,.9]} radius={.18} position={[0,.4,0]}><meshStandardMaterial color="#273d55" roughness={.7} /></RoundedBox><RoundedBox args={[2.1,.72,.25]} radius={.12} position={[0,.75,.36]}><meshStandardMaterial color="#304a65" /></RoundedBox></group>}
+    {object.kind === "cabinet" && <group {...common}><RoundedBox args={[1.15,1.55,.55]} radius={.08} position={[0,.78,0]}><meshStandardMaterial color="#173455" metalness={.6} roughness={.28}/></RoundedBox>{[-.32,.32].map(x=><mesh key={x} position={[x,.78,.29]}><boxGeometry args={[.025,.7,.02]}/><meshBasicMaterial color="#55baff"/></mesh>)}</group>}
+    {object.kind === "laptop" && <group {...common}><RoundedBox args={[.9,.07,.62]} radius={.04} position={[0,.74,0]}><meshStandardMaterial color="#446785" metalness={.8} roughness={.2}/></RoundedBox><mesh position={[0,1.03,.27]} rotation={[-.25,0,0]}><boxGeometry args={[.88,.57,.04]}/><meshStandardMaterial color="#1d314d" emissive="#147dcc" emissiveIntensity={.25}/></mesh></group>}
     {selected && <mesh position={[0,.035,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.72,.78,64]} /><meshBasicMaterial color="#57c7ff" depthWrite={false} /></mesh>}
     {(selected || xray) && <Text position={[0,2.15,0]} fontSize={.18} color="#d7efff" anchorX="center" outlineWidth={.012} outlineColor="#07111e">{object.label.toUpperCase()}{reading ? `  /  ${reading.quality.toUpperCase()}` : ""}</Text>}
   </group>;
@@ -65,7 +67,7 @@ function SceneObjectMesh({ object, selected, reading, xray, onSelect }: { object
 function World(props: Props) {
   const controls = useRef<ElementRef<typeof OrbitControls>>(null); const dragging = useRef<string | null>(null);
   const routers = props.objects.filter((o) => o.kind === "router" && o.power !== false); const receivers = props.objects.filter((o) => o.kind === "receiver");
-  const dragFloor = (event: ThreeEvent<PointerEvent>) => { if (!dragging.current || props.toolMode !== "move") return; event.stopPropagation(); props.onMove(dragging.current, THREE.MathUtils.clamp(event.point.x,-5.6,5.6), THREE.MathUtils.clamp(event.point.z,-3.6,3.6)); };
+  const dragFloor = (event: ThreeEvent<PointerEvent>) => { if (!dragging.current || props.toolMode !== "move") return; event.stopPropagation(); const x=Math.round(THREE.MathUtils.clamp(event.point.x,-5.6,5.6)*4)/4; const z=Math.round(THREE.MathUtils.clamp(event.point.z,-3.6,3.6)*4)/4; props.onMove(dragging.current,x,z); };
   const release = () => { if (dragging.current) props.onMoving(false); dragging.current = null; if (controls.current) controls.current.enabled = true; };
   const selected = props.focusSelected ? props.objects.find((object)=>object.id===props.selectedId) : undefined;
   useEffect(()=>{window.addEventListener("pointerup",release);return()=>window.removeEventListener("pointerup",release)});
@@ -73,8 +75,8 @@ function World(props: Props) {
     <PerspectiveCamera makeDefault fov={46} position={[10,8,11]} />
     <CameraRig view={props.cameraView} controls={controls} revision={props.cameraRevision} focus={selected} />
     <OrbitControls ref={controls} makeDefault enableDamping dampingFactor={.075} minDistance={6} maxDistance={24} maxPolarAngle={Math.PI/2.05} />
-    <color attach="background" args={["#050c18"]} /><fog attach="fog" args={["#050c18",16,30]} />
-    <ambientLight intensity={.55} color="#8bbce8" /><directionalLight position={[5,10,3]} intensity={2.4} color="#c9e6ff" castShadow shadow-mapSize={[1024,1024]} />
+    <color attach="background" args={["#020817"]} /><fog attach="fog" args={["#020817",15,28]} />
+    <hemisphereLight intensity={1.1} color="#8fc9ff" groundColor="#020714" /><directionalLight position={[5,10,3]} intensity={2.8} color="#c9e6ff" castShadow shadow-mapSize={[1024,1024]} /><pointLight position={[-4,3,-2]} intensity={35} distance={10} color="#167dff"/>
     <mesh receiveShadow rotation={[-Math.PI/2,0,0]} onPointerMove={dragFloor} onPointerUp={release} onPointerMissed={() => props.onSelect(null)}><planeGeometry args={[12,8]} /><meshStandardMaterial color="#09182a" roughness={.72} metalness={.12} /></mesh>
     <Grid args={[12,8]} position={[0,.008,0]} cellSize={.5} cellThickness={.35} cellColor="#1d5683" sectionSize={2} sectionThickness={.8} sectionColor="#286fa6" fadeDistance={18} infiniteGrid={false} />
     <mesh position={[0,1.35,-4]} receiveShadow><boxGeometry args={[12,2.7,.16]} /><meshStandardMaterial color="#0a1a2c" roughness={.8} /></mesh><mesh position={[-6,1.35,0]} receiveShadow><boxGeometry args={[.16,2.7,8]} /><meshStandardMaterial color="#0a1a2c" /></mesh>
@@ -86,5 +88,5 @@ function World(props: Props) {
 }
 
 export default function SpatialWorld(props: Props) {
-  return <Canvas shadows dpr={[1,1.6]} gl={{ antialias:true, alpha:false, powerPreference:"high-performance" }} onPointerUp={()=>props.onMoving(false)}><World {...props} /></Canvas>;
+  return <Canvas shadows dpr={[1,1.25]} performance={{min:.6}} gl={{ antialias:true, alpha:false, powerPreference:"high-performance" }} onPointerUp={()=>props.onMoving(false)}><World {...props} /></Canvas>;
 }

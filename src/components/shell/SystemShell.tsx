@@ -13,9 +13,10 @@ export function SystemShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const playground = pathname === "/playground";
+  const home = pathname === "/";
   return <XRayProvider><div className={styles.environment}>
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <header className={styles.header} data-playground={playground}>
+    <header className={styles.header} data-home={home} data-playground={playground}>
       <Link className={styles.identity} href="/" aria-label="Vamshi home"><i>V</i><span>VAMSHI<small>INTERACTIVE SYSTEMS</small></span></Link>
       <nav className={styles.desktopNav} aria-label="Primary navigation">
         {primaryNavigation.map(item => <Link key={item.href} href={item.href} data-active={pathname === item.href}>{item.label}</Link>)}

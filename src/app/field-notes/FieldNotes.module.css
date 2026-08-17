@@ -1,0 +1,459 @@
+.notesPage,
+.notePage {
+  min-height: 100vh;
+  padding: clamp(7.5rem, 13vw, 11rem) clamp(1.1rem, 4vw, 4.5rem) 7rem;
+  color: var(--text-primary, #eef2f2);
+  background:
+    linear-gradient(90deg, transparent 0 18%, rgba(142, 166, 161, 0.04) 18% 18.06%, transparent 18.06%),
+    radial-gradient(circle at 12% 12%, rgba(110, 158, 151, 0.06), transparent 28%);
+}
+
+.indexIntro,
+.noteIndex,
+.articleHeader,
+.articleFrame,
+.related {
+  width: min(100%, 86rem);
+  margin-inline: auto;
+}
+
+.indexIntro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(17rem, 0.75fr);
+  gap: clamp(2rem, 8vw, 8rem);
+  align-items: end;
+  margin-bottom: clamp(4rem, 8vw, 8rem);
+}
+
+.eyebrow,
+.indexMeta,
+.indexSequence,
+.articleMeta,
+.articleSequence,
+.relatedKind,
+.backLink,
+.notesCount {
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 1.1rem;
+  color: var(--signal-active, #67dfd0);
+  font-size: 0.7rem;
+}
+
+.indexIntro h1 {
+  max-width: 8ch;
+  margin: 0;
+  font-size: clamp(3.7rem, 9vw, 8.2rem);
+  font-weight: 530;
+  letter-spacing: -0.07em;
+  line-height: 0.82;
+}
+
+.indexIntro p {
+  margin: 0;
+  color: var(--text-secondary, #9aa6a5);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.75;
+}
+
+.notesCount {
+  display: block;
+  margin-bottom: 0.9rem;
+  color: #677472;
+  font-size: 0.6rem;
+}
+
+.noteIndex {
+  padding: 0;
+  border-top: 1px solid rgba(213, 233, 231, 0.16);
+  margin-bottom: 0;
+  list-style: none;
+}
+
+.indexItem {
+  border-bottom: 1px solid rgba(213, 233, 231, 0.12);
+}
+
+.indexLink {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5rem minmax(12rem, 0.75fr) minmax(20rem, 2fr) 2rem;
+  gap: clamp(1rem, 3vw, 3rem);
+  align-items: start;
+  padding: clamp(1.7rem, 3vw, 3rem) 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.indexLink::before {
+  position: absolute;
+  inset: 0 -1.2rem;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(103, 223, 208, 0.045), transparent 72%);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.98);
+  transform-origin: left;
+  transition: opacity 180ms ease, transform 240ms ease;
+}
+
+.indexLink:hover::before,
+.indexLink:focus-visible::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.indexLink:focus-visible,
+.backLink:focus-visible,
+.related a:focus-visible,
+.prose a:focus-visible {
+  outline: 2px solid var(--signal-active, #67dfd0);
+  outline-offset: 5px;
+}
+
+.indexSequence {
+  color: #5b6866;
+  font-size: 0.57rem;
+}
+
+.indexMeta {
+  display: grid;
+  gap: 0.55rem;
+  color: #7f8b89;
+  font-size: 0.58rem;
+}
+
+.indexMeta time {
+  color: #b1bcba;
+}
+
+.indexCopy h2 {
+  max-width: 22ch;
+  margin: -0.22rem 0 0;
+  font-size: clamp(1.35rem, 2.4vw, 2.25rem);
+  font-weight: 520;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.indexCopy p {
+  max-width: 48rem;
+  margin: 0.8rem 0 0;
+  color: #86918f;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.indexArrow {
+  color: #586663;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.indexLink:hover .indexArrow {
+  color: var(--signal-active, #67dfd0);
+  transform: translate(3px, -3px);
+}
+
+.articleHeader {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: clamp(1.2rem, 4vw, 4rem);
+  padding-bottom: clamp(3rem, 7vw, 6rem);
+  border-bottom: 1px solid rgba(213, 233, 231, 0.14);
+}
+
+.articleSequence {
+  padding-top: 0.55rem;
+  color: #61706d;
+  font-size: 0.59rem;
+}
+
+.backLink {
+  display: inline-flex;
+  margin-bottom: 2rem;
+  gap: 0.5rem;
+  align-items: center;
+  color: #91a09d;
+  font-size: 0.61rem;
+  text-decoration: none;
+}
+
+.articleHeader h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(2.8rem, 7vw, 6.8rem);
+  font-weight: 520;
+  letter-spacing: -0.065em;
+  line-height: 0.93;
+}
+
+.articleThesis {
+  max-width: 46rem;
+  margin: 2rem 0 0;
+  color: #a3aeac;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  line-height: 1.65;
+}
+
+.articleMeta {
+  display: flex;
+  margin-top: 2rem;
+  gap: 0.8rem 1.4rem;
+  flex-wrap: wrap;
+  color: #74817f;
+  font-size: 0.57rem;
+}
+
+.articleFrame {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 44rem) minmax(10rem, 1fr);
+  gap: clamp(1.2rem, 4vw, 4rem);
+  padding-top: clamp(3rem, 7vw, 6rem);
+}
+
+.readingRail {
+  position: sticky;
+  top: 7rem;
+  align-self: start;
+  color: #53605e;
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.prose {
+  color: #b7c0be;
+  font-size: clamp(1rem, 1.25vw, 1.1rem);
+  line-height: 1.85;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose h2,
+.prose h3 {
+  color: #edf3f2;
+  font-weight: 530;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.prose h2 {
+  margin: 4rem 0 1.1rem;
+  font-size: clamp(1.65rem, 3vw, 2.55rem);
+}
+
+.prose h3 {
+  margin: 2.8rem 0 0.9rem;
+  font-size: 1.25rem;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin-block: 1.25rem;
+}
+
+.prose li + li {
+  margin-top: 0.5rem;
+}
+
+.prose strong {
+  color: #e2e9e7;
+  font-weight: 600;
+}
+
+.prose a {
+  color: #8cd8cf;
+  text-decoration-color: rgba(140, 216, 207, 0.35);
+  text-underline-offset: 0.22em;
+}
+
+.prose blockquote {
+  margin: 2.5rem 0;
+  padding: 1.1rem 0 1.1rem 1.5rem;
+  border-left: 2px solid rgba(103, 223, 208, 0.5);
+  color: #d4dedc;
+  font-size: 1.12em;
+}
+
+.prose pre {
+  max-width: calc(100vw - 2.2rem);
+  overflow-x: auto;
+  margin: 2rem 0;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid rgba(213, 233, 231, 0.13);
+  border-radius: 0.25rem;
+  background: rgba(5, 9, 9, 0.72);
+  color: #bddbd7;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.prose :not(pre) > code {
+  padding: 0.12em 0.3em;
+  border: 1px solid rgba(213, 233, 231, 0.12);
+  border-radius: 0.18rem;
+  color: #b5dcd6;
+  background: rgba(103, 223, 208, 0.045);
+  font-size: 0.88em;
+}
+
+.prose hr {
+  margin: 4rem 0;
+  border: 0;
+  border-top: 1px solid rgba(213, 233, 231, 0.12);
+}
+
+.articleAside {
+  padding-top: 0.35rem;
+  color: #657270;
+  font-size: 0.72rem;
+  line-height: 1.7;
+}
+
+.articleAside strong {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: #9caaa7;
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.articleAside span {
+  display: block;
+}
+
+.related {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: clamp(1.2rem, 4vw, 4rem);
+  margin-top: clamp(4rem, 8vw, 8rem);
+  padding-top: 2rem;
+  border-top: 1px solid rgba(213, 233, 231, 0.14);
+}
+
+.related > span {
+  color: #5f6c69;
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 0.57rem;
+  letter-spacing: 0.1em;
+}
+
+.relatedLinks {
+  display: grid;
+}
+
+.related a {
+  display: grid;
+  grid-template-columns: 8rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid rgba(213, 233, 231, 0.1);
+  color: #d5dedc;
+  text-decoration: none;
+}
+
+.relatedKind {
+  color: #68807c;
+  font-size: 0.53rem;
+}
+
+@media (max-width: 850px) {
+  .indexIntro {
+    grid-template-columns: 1fr;
+  }
+
+  .indexLink {
+    grid-template-columns: 3.4rem minmax(0, 1fr) 1.5rem;
+  }
+
+  .indexMeta {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .indexCopy {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .indexArrow {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .articleHeader,
+  .articleFrame,
+  .related {
+    grid-template-columns: 1fr;
+  }
+
+  .articleSequence,
+  .readingRail,
+  .articleAside {
+    display: none;
+  }
+
+  .articleFrame {
+    justify-content: center;
+  }
+
+  .prose {
+    width: min(100%, 44rem);
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .notesPage,
+  .notePage {
+    padding-inline: 1rem;
+  }
+
+  .indexLink {
+    grid-template-columns: 1fr 1.2rem;
+  }
+
+  .indexSequence {
+    display: none;
+  }
+
+  .indexMeta,
+  .indexCopy {
+    grid-column: 1;
+  }
+
+  .indexArrow {
+    grid-column: 2;
+  }
+
+  .related a {
+    grid-template-columns: 1fr auto;
+  }
+
+  .relatedKind {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indexLink::before,
+  .indexArrow {
+    transition: none;
+  }
+}

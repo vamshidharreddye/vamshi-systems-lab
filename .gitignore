@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# next
+/.next
+/out
+
+# production
+/build
+
+# test artifacts
+/playwright-report
+/test-results
+/coverage
+
+# local configuration
+.env*
+!.env.example
+
+# local implementation specification
+/Building Vamshi Systems Lab.md
+
+# platform
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo

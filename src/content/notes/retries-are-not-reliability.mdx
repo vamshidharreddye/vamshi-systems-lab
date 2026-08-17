@@ -1,0 +1,56 @@
+Retries can recover from a short transient failure. They can also multiply traffic precisely when a dependency has the least capacity to absorb it. Reliability comes from controlling that tradeoff, not from increasing a retry count.
+
+## One request becomes a retry tree
+
+Consider a service that receives 100 requests and retries each failure twice. If every attempt fails during an outage, the downstream service sees 300 attempts. If several layers independently retry, the multiplication is larger because one user operation can trigger retry loops at the gateway, service, and client.
+
+```text
+100 original requests
+  ├─ attempt 1: 100
+  ├─ retry 1:   100
+  └─ retry 2:   100
+                  = 300 attempts during total failure
+```
+
+This simplified worst case is not a universal production model. It is a useful way to see that retries consume capacity.
+
+## Retry only failures that might change
+
+A timeout or connection reset may be transient. A validation error will not become valid because the client sends it again. A request that is not idempotent may create duplicate side effects if the first response was lost after the operation succeeded.
+
+A retry policy needs to know:
+
+- which errors are retryable;
+- whether the operation is idempotent;
+- how much time remains in the caller’s deadline;
+- how many attempts the entire call chain has already spent;
+- whether the dependency is asking clients to slow down.
+
+## Backoff needs jitter
+
+Exponential backoff spaces attempts out, but identical clients can still wake up together. Jitter randomizes the interval so the recovering service sees a distribution rather than synchronized waves.
+
+```ts
+const delay = Math.random() * Math.min(capMs, baseMs * 2 ** attempt);
+await wait(delay);
+```
+
+Randomness is useful here because synchronization is the failure mode. The system should still cap attempts and honor an overall deadline.
+
+## Budgets beat local optimism
+
+Every layer tends to believe one more attempt is harmless. An end-to-end retry budget makes the cost visible. Circuit breaking, concurrency limits, and load shedding protect the dependency when retries would only add pressure. Observability should distinguish original requests from attempts so amplification is not hidden inside a request-rate graph.
+
+Useful signals include:
+
+- attempts per logical operation;
+- retry reasons;
+- budget exhaustion;
+- success after retry;
+- downstream saturation while retries are active.
+
+## Reliability includes stopping
+
+The reliable action during an overload may be to fail quickly, preserve capacity for healthy work, and let the caller recover at a higher level. A retry is one recovery tool. It is not a substitute for deadlines, idempotency, capacity protection, and explicit failure behavior.
+
+[Open the Retry Storm experiment](/lab?experiment=retry-storm) to see attempt amplification, then read [what backpressure protects](/field-notes/what-backpressure-protects).

@@ -1,0 +1,62 @@
+The browser in Project WiFi does not need to negotiate, issue commands, or send a continuous stream back to the server. It needs to learn that the latest normalized presence state changed. That constraint makes the transport decision much smaller than the phrase “real-time dashboard” suggests.
+
+## Start with the direction of data
+
+The live path is one-way:
+
+> local webhook receiver → normalized event → connected browsers
+
+The browser establishes a long-lived HTTP connection. The server writes events as they arrive. That maps directly to `EventSource`, keeps the protocol inspectable in browser tooling, and lets the interface use ordinary HTTP infrastructure.
+
+```ts
+const stream = new EventSource("/events");
+
+stream.addEventListener("presence", (message) => {
+  const event = JSON.parse(message.data);
+  applyPresenceEvent(event);
+});
+
+stream.addEventListener("error", () => {
+  markConnectionAsRecovering();
+});
+```
+
+This is not an argument that SSE is universally better than WebSockets. It is an argument that the application should pay only for the communication shape it uses.
+
+## What SSE gives this system
+
+`EventSource` provides a few useful defaults:
+
+- a persistent response over HTTP;
+- named events and text payloads;
+- browser-managed reconnection;
+- an optional event ID that can support resumption;
+- a simple boundary between connection state and application state.
+
+The browser API is intentionally narrow. That is valuable here. There is less protocol surface to debug while tracing a physical event through Alexa, Lambda, the local receiver, and React.
+
+## Reconnection is not recovery by itself
+
+Automatic reconnection can make a disconnected tab reconnect, but it does not make delivery durable. If the receiver restarts and keeps no event history, an event emitted during that gap is gone. An event ID only helps when the server retains enough history to replay what the client missed.
+
+The local dashboard can tolerate that tradeoff because the most important value is current presence state, not an immutable audit log. On connection, the server can send a snapshot of the latest known state before streaming subsequent changes.
+
+```text
+connect
+  ├─ emit current_state snapshot
+  └─ subscribe client to future presence events
+```
+
+That distinction matters: reconnecting a transport and reconstructing application state are separate responsibilities.
+
+## Where I would choose something else
+
+A WebSocket becomes more compelling when the browser also needs frequent low-latency commands, binary messages, or a truly bidirectional session. Polling can be the more reliable operational choice when updates are infrequent and a long-lived connection is awkward for the hosting environment.
+
+For a production evolution, I would also examine connection limits, proxy buffering, heartbeat behavior, authorization at connect time, replay semantics, and observability around disconnected clients.
+
+## The decision in one sentence
+
+Project WiFi uses SSE because its browser is a listener. The choice keeps the live edge understandable while leaving room to change the transport if the product becomes bidirectional.
+
+[Inspect the Project WiFi system](/systems/project-wifi) or continue with [how the physical event reaches localhost](/field-notes/bridging-a-physical-event-into-localhost).

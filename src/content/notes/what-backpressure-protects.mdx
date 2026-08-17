@@ -1,0 +1,47 @@
+A queue can make a producer and consumer run at different speeds for a while. It cannot make finite consumer capacity disappear. Backpressure is the mechanism that turns that physical limit into an explicit upstream signal.
+
+## A queue buys time, not throughput
+
+If a producer admits 120 items per second and the consumer completes 80, the queue grows by roughly 40 items per second. A queue with capacity 400 buys about ten seconds before saturation under that simplified steady load.
+
+```text
+producer: 120 items/s
+consumer:  80 items/s
+delta:     40 items/s
+capacity: 400 items
+time to saturation: ~10 s
+```
+
+Real systems have bursts, variable service time, parallel consumers, and failure. The simplified model is still useful because it makes the direction of the system visible.
+
+## Unbounded queues move the outage
+
+An unbounded queue does not remove overload. It converts overload into memory growth, long tail latency, expired work, and an increasingly expensive recovery. By the time operators see process pressure, the queue may contain work whose caller has already timed out.
+
+A bounded queue forces a decision while the system still has a defined state:
+
+- wait and slow the producer;
+- reject new work;
+- shed a lower-priority class;
+- spill to a durable system when that is an intentional design;
+- scale consumers if the bottleneck can actually scale.
+
+## Backpressure protects useful work
+
+The immediate goal is not to keep the queue empty. It is to prevent admitted work from destroying the consumer’s ability to complete anything. That can protect memory, connection pools, downstream dependencies, latency objectives, and recovery time.
+
+Different protocols expose pressure differently. A stream can stop requesting data. A queue can reject publishes at capacity. An HTTP service can limit concurrency and return a deliberate overload response. A batch system can reduce admission before allocating workers.
+
+## Load shedding is part of the contract
+
+Rejecting work is uncomfortable because it makes failure visible. Quietly accepting work that cannot finish is often worse. A clear overload response lets an upstream caller apply its own priority, retry, or degradation policy.
+
+This only works when callers do not immediately retry without limits. Backpressure and retry policy form one control loop; tuning either in isolation can recreate the storm at a different boundary.
+
+## Instrument the pressure signal
+
+Queue depth alone is not enough. I want to see producer rate, consumer rate, age of oldest work, admission decisions, saturation duration, and completion latency. The useful question is not merely “how full is it?” but “which constraint is causing admitted work to wait?”
+
+A good Lab instrument connects each control directly to those states. Raise the producer rate and the queue should grow. Apply backpressure and admission should fall. Reach capacity and the interface should say `SATURATED` without relying on color alone.
+
+[Open the Backpressure experiment](/lab?experiment=backpressure) to manipulate the rates, or pair this note with [Retries are not reliability](/field-notes/retries-are-not-reliability).

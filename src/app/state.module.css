@@ -1,0 +1,15 @@
+.statePage { min-height: calc(100svh - 70px); width: min(calc(100% - (var(--space-page) * 2)),var(--content-max)); margin-inline: auto; display: grid; grid-template-columns: 1fr .7fr; align-items: center; gap: 70px; }
+.stateCopy > span { color: var(--signal-error); font: 500 9px/1 var(--font-mono); letter-spacing: .14em; }
+.stateCopy h1 { margin: 18px 0; font-size: clamp(58px,9vw,136px); line-height: .82; letter-spacing: -.06em; font-weight: 570; }
+.stateCopy p { max-width: 560px; color: var(--text-secondary); font-size: 17px; line-height: 1.6; }
+.stateCopy a,.stateCopy button { margin-top: 22px; }
+.routeInstrument { min-height: 410px; border-left: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-subtle); padding: 24px; background-image: linear-gradient(rgba(210,224,226,.04) 1px,transparent 1px); background-size: 100% 48px; }
+.routeInstrument header { display: flex; justify-content: space-between; color: var(--text-tertiary); font: 500 8px/1 var(--font-mono); }
+.routeInstrument strong { display: block; margin: 110px 0 15px; color: var(--signal-error); font: 600 clamp(50px,7vw,96px)/1 var(--font-mono); }
+.routeInstrument p { color: var(--text-tertiary); font: 500 10px/1.6 var(--font-mono); }
+.routeInstrument i { display: block; width: 70%; height: 1px; margin-top: 70px; background: var(--border-strong); }
+.loading { min-height: calc(100svh - 70px); display: grid; place-content: center; justify-items: center; gap: 18px; color: var(--text-tertiary); font: 500 9px/1 var(--font-mono); letter-spacing: .12em; }
+.loading div { width: min(360px,70vw); height: 1px; background: var(--border-subtle); overflow: hidden; }
+.loading i { display: block; width: 40%; height: 1px; background: var(--signal-active); animation: load 1.2s ease-in-out infinite alternate; }
+@keyframes load { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@media (max-width:760px) { .statePage { grid-template-columns: 1fr; padding: 70px 0; } .routeInstrument { min-height: 300px; } .routeInstrument strong { margin-top: 70px; } }

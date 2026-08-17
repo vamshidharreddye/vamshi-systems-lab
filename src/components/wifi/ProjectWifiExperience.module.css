@@ -1,0 +1,873 @@
+.environment {
+  --wifi-ink: var(--text-primary, #f1efe8);
+  --wifi-muted: var(--text-secondary, #929da6);
+  --wifi-surface: var(--surface-primary, #090d11);
+  --wifi-raised: var(--surface-elevated, #10161c);
+  --wifi-line: var(--border-subtle, rgba(216, 231, 240, 0.14));
+  --wifi-cyan: var(--signal-active, #69d7e7);
+  --wifi-green: var(--signal-success, #69d2a2);
+  --wifi-amber: var(--signal-warning, #e7b66a);
+  --wifi-red: var(--signal-error, #ee7b72);
+  --pointer-x: 50%;
+  --pointer-y: 45%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--wifi-ink);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 18%),
+    var(--wifi-surface);
+  border: 1px solid var(--wifi-line);
+  border-radius: 6px;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.28);
+}
+
+.environment::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  content: "";
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 76%);
+}
+
+.environmentGlow {
+  position: absolute;
+  top: calc(var(--pointer-y) - 310px);
+  left: calc(var(--pointer-x) - 310px);
+  z-index: -1;
+  width: 620px;
+  height: 620px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--wifi-cyan) 9%, transparent),
+    transparent 67%
+  );
+  opacity: 0.8;
+  transition: top 180ms ease-out, left 180ms ease-out;
+}
+
+.experienceHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(2rem, 6vw, 7rem);
+  align-items: end;
+  padding: clamp(1.5rem, 4vw, 3.75rem);
+  border-bottom: 1px solid var(--wifi-line);
+}
+
+.kicker,
+.microLabel {
+  margin: 0 0 1rem;
+  color: var(--wifi-cyan);
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-right: 0.55rem;
+  background: var(--wifi-green);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--wifi-green) 12%, transparent);
+}
+
+.experienceHeader h2 {
+  max-width: 15ch;
+  margin: 0;
+  font-family: var(--font-sans, "Segoe UI Variable", "Segoe UI", sans-serif);
+  font-size: clamp(2rem, 4.4vw, 4.85rem);
+  font-weight: 520;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 66ch;
+  margin: 1.25rem 0 0;
+  color: var(--wifi-muted);
+  font-size: clamp(0.92rem, 1.2vw, 1.06rem);
+  line-height: 1.7;
+}
+
+.pathLegend {
+  display: grid;
+  min-width: 13rem;
+  border-top: 1px solid var(--wifi-line);
+}
+
+.pathLegend span {
+  padding: 0.72rem 0;
+  color: var(--wifi-muted);
+  border-bottom: 1px solid var(--wifi-line);
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.controlDeck {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 1rem clamp(1.25rem, 3vw, 2.5rem);
+  background: rgba(255, 255, 255, 0.018);
+  border-bottom: 1px solid var(--wifi-line);
+}
+
+.eventControls,
+.transportControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transportControls {
+  align-items: center;
+}
+
+.controlDeck button,
+.failureSelector select {
+  min-height: 2.45rem;
+  color: var(--wifi-ink);
+  background: transparent;
+  border: 1px solid var(--wifi-line);
+  border-radius: 3px;
+  font: 600 0.7rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.035em;
+  transition:
+    color 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.controlDeck button {
+  padding: 0.72rem 0.9rem;
+  cursor: pointer;
+}
+
+.controlDeck button:hover:not(:disabled) {
+  color: white;
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.controlDeck button:focus-visible,
+.failureSelector select:focus-visible {
+  outline: 2px solid var(--wifi-cyan);
+  outline-offset: 3px;
+}
+
+.controlDeck button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.controlDeck .primaryControl {
+  color: #071014;
+  background: var(--wifi-cyan);
+  border-color: var(--wifi-cyan);
+}
+
+.controlDeck .primaryControl:hover:not(:disabled) {
+  color: #071014;
+  background: #8ee3ee;
+}
+
+.primaryControl span,
+.secondaryControl span {
+  margin-right: 0.42rem;
+}
+
+.failureSelector {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.failureSelector > span {
+  color: var(--wifi-muted);
+  font: 600 0.61rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.failureSelector select {
+  max-width: 14rem;
+  padding: 0 2.2rem 0 0.75rem;
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.failureSelector select:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.systemReadout {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  min-height: 2.85rem;
+  padding: 0.62rem clamp(1.25rem, 3vw, 2.5rem);
+  background: rgba(0, 0, 0, 0.14);
+  border-bottom: 1px solid var(--wifi-line);
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 0.67rem;
+}
+
+.systemReadout > span {
+  min-width: 4.9rem;
+  padding: 0.32rem 0.45rem;
+  color: var(--wifi-muted);
+  border: 1px solid var(--wifi-line);
+  border-radius: 2px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.systemReadout > span[data-status="running"] {
+  color: var(--wifi-cyan);
+  border-color: color-mix(in srgb, var(--wifi-cyan) 40%, transparent);
+}
+
+.systemReadout > span[data-status="failed"] {
+  color: var(--wifi-red);
+  border-color: color-mix(in srgb, var(--wifi-red) 45%, transparent);
+}
+
+.systemReadout > span[data-status="complete"] {
+  color: var(--wifi-green);
+  border-color: color-mix(in srgb, var(--wifi-green) 42%, transparent);
+}
+
+.systemReadout p {
+  margin: 0;
+  overflow: hidden;
+  color: var(--wifi-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.experienceGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 25rem);
+  min-height: 36rem;
+}
+
+.pipelineColumn {
+  position: relative;
+  min-width: 0;
+  border-right: 1px solid var(--wifi-line);
+}
+
+.pipelineViewport {
+  position: relative;
+  min-height: 30rem;
+  overflow: hidden;
+}
+
+.pipelineViewport::before,
+.pipelineViewport::after {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  content: "";
+}
+
+.pipelineViewport::before {
+  inset: 0 auto 0 33.333%;
+  border-left: 1px dashed rgba(255, 255, 255, 0.055);
+}
+
+.pipelineViewport::after {
+  inset: 0 21% 0 auto;
+  border-left: 1px dashed rgba(255, 255, 255, 0.055);
+}
+
+.boundaryLabels {
+  position: absolute;
+  inset: 1rem 1.25rem auto;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  color: rgba(190, 205, 214, 0.46);
+  font: 600 0.56rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.desktopPipeline,
+.mobilePipeline {
+  display: block;
+  width: 100%;
+  min-width: 58rem;
+  height: auto;
+  margin-top: clamp(4rem, 8vw, 7rem);
+  overflow: visible;
+}
+
+.mobilePipeline {
+  display: none;
+  min-width: 0;
+}
+
+.edgeBase,
+.edgeSignal {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.edgeBase {
+  stroke: rgba(205, 222, 231, 0.12);
+  stroke-width: 1.2;
+}
+
+.edgeSignal {
+  opacity: 0;
+  stroke: var(--wifi-cyan);
+  stroke-linecap: round;
+  stroke-width: 1.8;
+  transition: opacity 240ms ease;
+}
+
+.edgePassed {
+  opacity: 0.55;
+}
+
+.edgeCarrying {
+  opacity: 0.95;
+  stroke-dasharray: 3 12;
+  animation: signalDash 780ms linear infinite;
+}
+
+.carrier {
+  fill: white;
+  filter: drop-shadow(0 0 7px var(--wifi-cyan));
+}
+
+.stage {
+  cursor: pointer;
+  outline: none;
+}
+
+.stageProximity,
+.stageHalo,
+.stageNode {
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill 220ms ease,
+    stroke 220ms ease,
+    opacity 220ms ease,
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.stageProximity {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.stageHalo {
+  fill: transparent;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+}
+
+.stageNode {
+  fill: #0b1116;
+  stroke: rgba(210, 227, 236, 0.25);
+  stroke-width: 1.2;
+}
+
+.stage:hover .stageNode,
+.stage:focus-visible .stageNode,
+.stageSelected .stageNode {
+  stroke: rgba(255, 255, 255, 0.76);
+  transform: scale(1.08);
+}
+
+.stage:focus-visible .stageProximity {
+  stroke: var(--wifi-cyan);
+  stroke-dasharray: 2 5;
+}
+
+.stageSelected .stageHalo {
+  stroke: rgba(255, 255, 255, 0.28);
+  transform: scale(1.12);
+}
+
+.stageIndex,
+.stageLabel,
+.stageEyebrow {
+  pointer-events: none;
+  user-select: none;
+}
+
+.stageIndex {
+  fill: var(--wifi-muted);
+  font: 600 0.66rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.03em;
+}
+
+.stageLabel {
+  fill: var(--wifi-ink);
+  font: 650 0.74rem/1 var(--font-sans, "Segoe UI Variable", "Segoe UI", sans-serif);
+  letter-spacing: -0.01em;
+}
+
+.stageEyebrow {
+  fill: rgba(170, 187, 197, 0.5);
+  font: 600 0.45rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stage_visited .stageNode,
+.stage_complete .stageNode {
+  fill: color-mix(in srgb, var(--wifi-green) 8%, #0b1116);
+  stroke: color-mix(in srgb, var(--wifi-green) 55%, transparent);
+}
+
+.stage_carrying .stageNode,
+.stage_active .stageNode {
+  fill: color-mix(in srgb, var(--wifi-cyan) 13%, #0b1116);
+  stroke: var(--wifi-cyan);
+}
+
+.stage_carrying .stageHalo {
+  opacity: 0.8;
+  stroke: var(--wifi-cyan);
+  animation: nodeBreath 1.1s ease-in-out infinite;
+}
+
+.stage_failed .stageNode {
+  fill: color-mix(in srgb, var(--wifi-red) 13%, #0b1116);
+  stroke: var(--wifi-red);
+}
+
+.stage_failed .stageHalo {
+  stroke: var(--wifi-red);
+  stroke-dasharray: 3 5;
+}
+
+.canonicalPath {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.48rem;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  color: var(--wifi-muted);
+  border-top: 1px solid var(--wifi-line);
+  font: 600 0.62rem/1.5 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+}
+
+.canonicalPath span {
+  white-space: nowrap;
+}
+
+.canonicalPath i {
+  margin-left: 0.48rem;
+  color: color-mix(in srgb, var(--wifi-cyan) 66%, var(--wifi-muted));
+  font-style: normal;
+}
+
+.inspector {
+  min-width: 0;
+  background: color-mix(in srgb, var(--wifi-raised) 72%, transparent);
+}
+
+.inspectorHeader {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--wifi-line);
+}
+
+.inspectorHeader .microLabel {
+  margin-bottom: 0.5rem;
+}
+
+.inspectorHeader h3 {
+  margin: 0;
+  font: 520 1.35rem/1.1 var(--font-sans, "Segoe UI Variable", "Segoe UI", sans-serif);
+  letter-spacing: -0.025em;
+}
+
+.statusPill {
+  max-width: 10rem;
+  padding: 0.42rem 0.5rem;
+  overflow: hidden;
+  color: var(--wifi-muted);
+  border: 1px solid var(--wifi-line);
+  border-radius: 2px;
+  font: 650 0.53rem/1.25 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.05em;
+  text-align: right;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.statusPill[data-status="running"] {
+  color: var(--wifi-cyan);
+}
+
+.statusPill[data-status="complete"] {
+  color: var(--wifi-green);
+}
+
+.statusPill[data-status="failed"] {
+  color: var(--wifi-red);
+}
+
+.telemetryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  border-bottom: 1px solid var(--wifi-line);
+}
+
+.telemetryGrid > div {
+  min-width: 0;
+  padding: 0.8rem 1rem;
+  border-right: 1px solid var(--wifi-line);
+  border-bottom: 1px solid var(--wifi-line);
+}
+
+.telemetryGrid > div:nth-child(even) {
+  border-right: 0;
+}
+
+.telemetryGrid dt {
+  margin-bottom: 0.35rem;
+  color: rgba(172, 187, 197, 0.52);
+  font: 600 0.52rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.telemetryGrid dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--wifi-ink);
+  font: 550 0.65rem/1.35 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stageDetail,
+.failureReadout,
+.eventTimeline {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--wifi-line);
+}
+
+.stageDetailHeading,
+.timelineHeading {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  color: var(--wifi-cyan);
+  font: 650 0.56rem/1.3 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stageDetail p,
+.failureReadout p {
+  margin: 0.85rem 0 0;
+  color: var(--wifi-muted);
+  font-size: 0.76rem;
+  line-height: 1.58;
+}
+
+.stageDetail .observation {
+  padding-left: 0.8rem;
+  color: color-mix(in srgb, var(--wifi-ink) 76%, var(--wifi-muted));
+  border-left: 1px solid var(--wifi-cyan);
+}
+
+.failureReadout {
+  background: color-mix(in srgb, var(--wifi-red) 5%, transparent);
+  border-left: 2px solid var(--wifi-red);
+}
+
+.failureReadout > div {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.failureReadout span {
+  padding: 0.25rem 0.4rem;
+  color: var(--wifi-red);
+  border: 1px solid color-mix(in srgb, var(--wifi-red) 50%, transparent);
+  font: 700 0.56rem/1 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+}
+
+.failureReadout strong {
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.eventTimeline ol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eventTimeline li {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.42rem 0.5rem;
+  color: var(--wifi-muted);
+  border: 1px solid var(--wifi-line);
+  font: 550 0.55rem/1.2 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+}
+
+.eventTimeline li:nth-child(even) {
+  border-left: 0;
+}
+
+.eventTimeline time {
+  color: var(--wifi-green);
+}
+
+.emptyTrace {
+  margin: 0.9rem 0 0;
+  color: var(--wifi-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.disclosure {
+  display: flex;
+  gap: 1rem 3rem;
+  justify-content: space-between;
+  padding: 0.9rem clamp(1.25rem, 3vw, 2.5rem);
+  color: rgba(172, 187, 197, 0.58);
+  border-top: 1px solid var(--wifi-line);
+  font: 500 0.59rem/1.45 var(--font-mono, "SFMono-Regular", Consolas, monospace);
+}
+
+@keyframes signalDash {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+
+@keyframes nodeBreath {
+  50% {
+    opacity: 0.32;
+    transform: scale(1.14);
+  }
+}
+
+@media (max-width: 1120px) {
+  .controlDeck {
+    grid-template-columns: 1fr auto;
+  }
+
+  .eventControls {
+    grid-column: 1;
+  }
+
+  .transportControls {
+    grid-row: 2;
+  }
+
+  .failureSelector {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
+  .experienceGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 21rem);
+  }
+}
+
+@media (max-width: 880px) {
+  .experienceHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .pathLegend {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .pathLegend span {
+    padding-right: 0.5rem;
+  }
+
+  .experienceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pipelineColumn {
+    border-right: 0;
+    border-bottom: 1px solid var(--wifi-line);
+  }
+
+  .desktopPipeline {
+    display: none;
+  }
+
+  .mobilePipeline {
+    display: block;
+    width: min(100%, 30rem);
+    margin: 3.5rem auto 1rem;
+  }
+
+  .pipelineViewport {
+    min-height: 74rem;
+  }
+
+  .pipelineViewport::before {
+    left: 50%;
+  }
+
+  .pipelineViewport::after {
+    display: none;
+  }
+
+  .boundaryLabels {
+    grid-template-columns: 1fr;
+  }
+
+  .boundaryLabels span:not(:first-child) {
+    display: none;
+  }
+
+  .inspector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .inspectorHeader,
+  .telemetryGrid {
+    grid-column: 1 / -1;
+  }
+
+  .stageDetail {
+    border-right: 1px solid var(--wifi-line);
+  }
+
+  .failureReadout,
+  .eventTimeline {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .experienceHeader {
+    gap: 1.5rem;
+  }
+
+  .pathLegend {
+    grid-template-columns: 1fr;
+  }
+
+  .controlDeck {
+    grid-template-columns: 1fr;
+  }
+
+  .failureSelector,
+  .eventControls,
+  .transportControls {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .eventControls,
+  .transportControls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .eventControls button,
+  .transportControls button,
+  .failureSelector select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .systemReadout {
+    align-items: flex-start;
+  }
+
+  .systemReadout p {
+    white-space: normal;
+  }
+
+  .pipelineViewport {
+    min-height: 71rem;
+  }
+
+  .inspector {
+    display: block;
+  }
+
+  .stageDetail {
+    border-right: 0;
+  }
+
+  .telemetryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .telemetryGrid > div,
+  .telemetryGrid > div:nth-child(even) {
+    border-right: 0;
+  }
+
+  .eventTimeline ol {
+    grid-template-columns: 1fr;
+  }
+
+  .eventTimeline li:nth-child(even) {
+    border-left: 1px solid var(--wifi-line);
+  }
+
+  .disclosure {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .environmentGlow,
+  .controlDeck button,
+  .edgeSignal,
+  .stageProximity,
+  .stageHalo,
+  .stageNode {
+    transition-duration: 0.01ms;
+  }
+
+  .edgeCarrying,
+  .stage_carrying .stageHalo {
+    animation: none;
+  }
+
+  .carrier {
+    display: none;
+  }
+}

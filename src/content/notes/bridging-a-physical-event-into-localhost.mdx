@@ -1,0 +1,62 @@
+A laptop is a useful place to build an event receiver and a poor place to pretend there is a permanent public ingress. Project WiFi uses ngrok as a narrow development bridge between those two facts.
+
+## The path is longer than the tunnel
+
+The event begins in the Alexa ecosystem rather than in the browser:
+
+```text
+Echo occupancy event
+  → Alexa Routine
+  → Custom Skill
+  → AWS Lambda
+  → ngrok HTTPS endpoint
+  → local webhook receiver
+  → Server-Sent Events
+  → React interface
+```
+
+The tunnel solves one boundary: Lambda needs an HTTPS address that can reach a receiver running on a development machine. It does not validate the event, normalize the payload, retain history, or keep the local process alive.
+
+Keeping those responsibilities separate makes the system easier to inspect.
+
+## Give the public edge one job
+
+The forwarded endpoint should expose the smallest useful surface. A webhook route and a health route are enough for development. The local application can reject unsupported methods, cap request bodies, validate an authentication secret when configured, and normalize accepted payloads before anything reaches connected browsers.
+
+```ts
+const PresenceEvent = z.object({
+  type: z.enum(["people_detected", "presence_cleared"]),
+  source: z.literal("alexa_occupancy"),
+  observedAt: z.string().datetime()
+});
+
+const event = PresenceEvent.parse(request.body);
+broadcast(normalizePresence(event));
+```
+
+The example deliberately contains no actual secret, device identifier, private address, or tunnel URL.
+
+## Treat the URL as configuration
+
+A development tunnel URL can change. Lambda configuration should consume it as an environment value rather than embedding it in source. The webhook secret belongs in secret configuration as well. Logs can record that authentication succeeded without printing credential material.
+
+The same discipline makes failure states clearer:
+
+- **Tunnel unavailable:** Lambda cannot reach the receiver.
+- **Receiver unavailable:** the public edge exists, but the local process is not accepting requests.
+- **Invalid event:** the receiver is healthy and intentionally rejects the payload.
+- **No SSE clients:** the event can still update server state even when no browser is listening.
+
+Those are different failures and should not collapse into one “offline” badge.
+
+## What ngrok does not make production-ready
+
+The architecture is useful for development and personal experimentation. A production path would likely use managed ingress, stronger request authentication, rate limiting, durable queueing where event loss matters, persistent state where history matters, and infrastructure as code. Those are production-evolution ideas, not claims about the current implementation.
+
+The local receiver also remains constrained by the laptop’s power state, network, and process lifecycle. Naming that constraint is more useful than hiding it behind cloud-shaped diagrams.
+
+## The bridge as an observable boundary
+
+The most interesting part is not that a tunnel exists. It is that a physical ecosystem event crosses several trust and execution boundaries before it becomes UI state. A good visualization should let a visitor inspect each handoff and see which layer owns the next decision.
+
+[Run the Project WiFi architecture](/systems/project-wifi) and read [why its browser edge uses SSE](/field-notes/why-sse-for-a-local-presence-dashboard).

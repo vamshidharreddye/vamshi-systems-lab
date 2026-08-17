@@ -1,0 +1,58 @@
+“Chat with your PDF” compresses an entire retrieval system into a chat box. The response is the visible end of the pipeline, but most quality decisions happen before the model sees a token.
+
+## Retrieval is the product surface
+
+A local file assistant has a concrete sequence:
+
+```text
+local files
+  → text extraction
+  → chunks
+  → embeddings
+  → vector retrieval
+  → selected context
+  → Ollama
+  → answer + sources
+```
+
+Each arrow can change the result. Extraction may lose a table’s structure. A chunk boundary may separate a statement from its qualifier. Similarity may retrieve a repeated heading instead of the useful paragraph. The context window may contain relevant text but bury it among redundant chunks.
+
+A useful interface exposes these decisions instead of presenting the answer as magic.
+
+## Chunk size changes what can be retrieved
+
+Small chunks create precise retrieval units, but they can discard surrounding meaning. Large chunks preserve more context, but they consume the context budget quickly and can dilute the signal used for ranking.
+
+Overlap helps a concept survive a boundary. It also creates near-duplicates that can occupy several Top K positions.
+
+```py
+def make_chunks(tokens, size, overlap):
+    step = max(1, size - overlap)
+    return [tokens[start:start + size] for start in range(0, len(tokens), step)]
+```
+
+There is no universal chunk size. Document structure, query shape, embedding model, and context limits all matter.
+
+## Top K is a context-allocation decision
+
+Increasing Top K does not monotonically improve an answer. It raises recall until weaker or redundant passages begin to compete for limited attention and tokens. The interface should show both the candidates and what actually enters the context window.
+
+For a browser demonstration, a deterministic keyword or TF-IDF-style similarity can teach this relationship without downloading an embedding model. It must be labeled accurately. The actual Local AI project can use sentence-transformer embeddings and ChromaDB while the portfolio remains a lightweight educational visualization.
+
+## Sources make errors inspectable
+
+Source visibility lets a person ask three separate questions:
+
+1. Did the system retrieve the right document?
+2. Did it select the useful passage?
+3. Did the model represent that passage faithfully?
+
+Without citations to retrieved chunks, all three failures look like one bad answer. With them, the user can tell whether to revise the query, change retrieval settings, or distrust the generation.
+
+## Local-first is a boundary, not a slogan
+
+Running extraction, storage, retrieval, and inference locally can keep private documents away from hosted model APIs. It does not remove the need to protect the local index, temporary files, logs, or backups. It also shifts model availability and performance constraints onto the user’s machine.
+
+That is the more interesting Local AI story: explicit data boundaries, visible retrieval mechanics, and sources that keep a human in the loop.
+
+[Explore the Local AI system](/systems#local-ai) or manipulate the same tradeoffs in the [RAG Microscope](/lab?experiment=rag-microscope).

@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type ElementType, type HTMLAttributes, type ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, type Ref } from "react";
 import { cn } from "@/lib/cn";
 import type { InspectionMetadata } from "@/types/inspection";
 import { useXRay } from "./XRayProvider";
@@ -18,10 +18,12 @@ export const Inspectable = forwardRef<HTMLElement, InspectableProps>(function In
   ref
 ) {
   const { enabled } = useXRay();
-  const Tag = Component as ElementType;
+  // React 19 intersects props for unions of intrinsic elements. The supported
+  // tags all share the HTMLElement attributes declared by InspectableProps.
+  const Tag = Component as "div";
   return (
     <Tag
-      ref={ref}
+      ref={ref as Ref<HTMLDivElement>}
       className={cn("inspectable", enabled && "is-inspected", className)}
       data-inspect-id={metadata.id}
       data-inspect-relationship={metadata.relationship || undefined}

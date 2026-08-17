@@ -1,3 +1,3 @@
-import { HomeExperience } from "@/components/home/HomeExperience";
+import { SignalPlayground } from "@/components/playground/SignalPlayground";
 
-export default function HomePage() { return <HomeExperience />; }
+export default function HomePage() { return <SignalPlayground />; }

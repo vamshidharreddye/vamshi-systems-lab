@@ -1,0 +1,71 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Box, CircleHelp, Copy, Crosshair, Eye, Focus, Grid2X2, Layers3, Move3d, Pause, Play, Plus, Radio, Rotate3d, Router, Trash2, UserRound, Waves, X } from "lucide-react";
+import { MATERIAL_LOSS, simulateScene } from "@/lib/playground/engine";
+import type { Material, ObjectKind, SceneObject } from "@/lib/playground/types";
+import styles from "./SignalPlayground.module.css";
+
+const SpatialWorld = dynamic(() => import("./SpatialWorld"), { ssr: false, loading: () => <div className={styles.worldLoading}><span /><p>INITIALIZING SPATIAL ENGINE</p></div> });
+type ViewMode = "perspective" | "top" | "signal"; type ToolMode = "move" | "rotate";
+
+const livingRoom: SceneObject[] = [
+  { id:"router-1",kind:"router",label:"Router 01",x:-4,y:-2.1,power:true,strength:84 },
+  { id:"speaker-1",kind:"receiver",label:"Smart speaker",x:3.8,y:-1.8,power:true },
+  { id:"person-1",kind:"person",label:"Person",x:.3,y:1.7 },
+  { id:"wall-1",kind:"wall",label:"Concrete wall",x:.8,y:-.5,material:"concrete",rotation:90 },
+  { id:"couch-1",kind:"couch",label:"Couch",x:3.3,y:2.5,rotation:-15 },
+  { id:"desk-1",kind:"desk",label:"Desk",x:-3.7,y:2.4 },
+];
+const presets: Record<string,SceneObject[]> = {
+  "Living Room":livingRoom,
+  "Empty Room":[livingRoom[0],livingRoom[1]],
+  Obstructed:[livingRoom[0],livingRoom[1],{...livingRoom[3],material:"metal",label:"Metal barrier"}],
+  "Router Offline":[{...livingRoom[0],power:false},livingRoom[1],livingRoom[2]],
+  "Walk Through":livingRoom,
+  "Two Routers":[...livingRoom,{...livingRoom[0],id:"router-2",label:"Router 02",x:4.4,y:2.8,strength:68}],
+};
+const library: { category:string;kind:ObjectKind;label:string;Icon:typeof Router; defaults?:Partial<SceneObject> }[] = [
+  {category:"NETWORK",kind:"router",label:"WiFi Router",Icon:Router},{category:"NETWORK",kind:"router",label:"Access Point",Icon:Crosshair,defaults:{strength:68}},
+  {category:"SMART DEVICES",kind:"receiver",label:"Smart Speaker",Icon:Radio},{category:"SMART DEVICES",kind:"receiver",label:"Generic Receiver",Icon:Radio},
+  {category:"PEOPLE",kind:"person",label:"Person",Icon:UserRound},{category:"ENVIRONMENT",kind:"wall",label:"Wall",Icon:Box,defaults:{material:"drywall"}},{category:"ENVIRONMENT",kind:"wall",label:"Glass Wall",Icon:Layers3,defaults:{material:"glass"}},
+  {category:"ENVIRONMENT",kind:"desk",label:"Desk",Icon:Grid2X2},{category:"ENVIRONMENT",kind:"couch",label:"Couch",Icon:Grid2X2},{category:"ENVIRONMENT",kind:"wall",label:"Metal Cabinet",Icon:Box,defaults:{material:"metal"}},
+];
+
+export function SignalPlayground(){
+  const [entered,setEntered]=useState(false); const [objects,setObjects]=useState(()=>livingRoom.map(o=>({...o}))); const [selectedId,setSelectedId]=useState<string|null>("person-1");
+  const [shelf,setShelf]=useState(false); const [help,setHelp]=useState(false); const [scenario,setScenario]=useState("Living Room"); const [view,setView]=useState<ViewMode>("perspective"); const [tool,setTool]=useState<ToolMode>("move");
+  const [editorMode,setEditorMode]=useState<"EXPLORE"|"BUILD">("EXPLORE"); const [cameraRevision,setCameraRevision]=useState(0); const [focusSelected,setFocusSelected]=useState(false);
+  const [waves,setWaves]=useState(true); const [field,setField]=useState(true); const [paths,setPaths]=useState(true); const [xray,setXray]=useState(false); const [moving,setMoving]=useState(false); const [playing,setPlaying]=useState(false); const sequence=useRef(20); const animation=useRef(0); const direction=useRef(1);
+  const output=useMemo(()=>simulateScene(objects,moving||playing),[objects,moving,playing]); const selected=objects.find(o=>o.id===selectedId); const reading=selected?.kind==="receiver"?output.readings[selected.id]:undefined;
+  const update=(id:string,patch:Partial<SceneObject>)=>setObjects(old=>old.map(o=>o.id===id?{...o,...patch}:o));
+  const remove=()=>{if(!selectedId)return;setObjects(old=>old.filter(o=>o.id!==selectedId));setSelectedId(null)};
+  const duplicate=()=>{if(!selected)return;sequence.current+=1;const copy={...selected,id:`${selected.kind}-${sequence.current}`,label:`${selected.label} Copy`,x:Math.min(5.4,selected.x+.55),y:Math.min(3.4,selected.y+.55)};setObjects(old=>[...old,copy]);setSelectedId(copy.id)};
+  const load=(name:string)=>{setScenario(name);setObjects((presets[name]??livingRoom).map(o=>({...o})));setSelectedId(null);setPlaying(name==="Walk Through")};
+  const add=(entry:(typeof library)[number])=>{sequence.current+=1;const id=`${entry.kind}-${sequence.current}`;setObjects(old=>[...old,{id,kind:entry.kind,label:entry.label,x:0,y:0,rotation:0,...(entry.kind==="router"?{power:true,strength:78}:{}),...entry.defaults}]);setSelectedId(id);setShelf(false)};
+
+  useEffect(()=>{const onKey=(event:KeyboardEvent)=>{const target=event.target as HTMLElement;if(["INPUT","SELECT","TEXTAREA"].includes(target.tagName))return;if(event.key.toLowerCase()==="w"){event.preventDefault();setTool("move")}if(event.key.toLowerCase()==="e"){event.preventDefault();setTool("rotate")}if(event.key.toLowerCase()==="f"&&selectedId){event.preventDefault();setFocusSelected(true);setCameraRevision(v=>v+1)}if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="d"&&selected){event.preventDefault();sequence.current+=1;const copy={...selected,id:`${selected.kind}-${sequence.current}`,label:`${selected.label} Copy`,x:Math.min(5.4,selected.x+.55),y:Math.min(3.4,selected.y+.55)};setObjects(old=>[...old,copy]);setSelectedId(copy.id)}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();if(selectedId){setObjects(old=>old.filter(o=>o.id!==selectedId));setSelectedId(null)}}if(event.key==="Escape"){setShelf(false);setHelp(false);setSelectedId(null)}if(selectedId&&event.key.startsWith("Arrow")){event.preventDefault();const current=objects.find(o=>o.id===selectedId);if(!current)return;if(tool==="rotate")update(selectedId,{rotation:(current.rotation??0)+(event.key==="ArrowLeft"?-15:event.key==="ArrowRight"?15:0)});else update(selectedId,{x:current.x+(event.key==="ArrowLeft"?-.25:event.key==="ArrowRight"?.25:0),y:current.y+(event.key==="ArrowUp"?-.25:event.key==="ArrowDown"?.25:0)})}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[objects,selected,selectedId,tool]);
+  useEffect(()=>{if(!playing)return;const tick=()=>{setObjects(old=>old.map(o=>{if(o.kind!=="person")return o;if(o.x>4||o.x<-4)direction.current*=-1;return{...o,x:o.x+direction.current*.012}}));animation.current=requestAnimationFrame(tick)};animation.current=requestAnimationFrame(tick);return()=>cancelAnimationFrame(animation.current)},[playing]);
+
+  return <main id="main-content" className={styles.site}>
+    <AnimatePresence mode="wait">{!entered?<motion.section key="landing" className={styles.landing} exit={{opacity:0,scale:1.03,filter:"blur(14px)"}}>
+      <nav className={styles.nav}><Link href="/" className={styles.identity}><b>V/E</b><span>VAMSHI<small>SYSTEMS LAB</small></span></Link><div><a href="#playground">PLAYGROUND</a><Link href="/about">ABOUT</Link></div></nav>
+      <div className={styles.heroCopy}><p className={styles.kicker}><i/> SPATIAL SIGNAL LAB / 3D</p><h1>Enter the room.<br/>Move the world.<br/><em>Watch the signal react.</em></h1><p className={styles.lede}>A real-time 3D sandbox for exploring simplified wireless propagation, obstacles, smart devices, and movement.</p><div className={styles.heroActions}><button onClick={()=>setEntered(true)}>Enter 3D playground <span>↗</span></button><button onClick={()=>setHelp(true)}>How it works</button></div></div>
+      <div className={styles.preview} aria-hidden="true"><div className={styles.previewRouter}><Router/></div><i className={styles.previewPath}/><div className={styles.previewWall}/><div className={styles.previewPerson}><UserRound/></div><span>LIVE SPATIAL MODEL</span></div><p className={styles.disclosure}>Simplified interactive signal simulation. Not a physical RF measurement or real human tracking system.</p>
+    </motion.section>:<motion.section key="world" id="playground" className={styles.sandbox} initial={{opacity:0}} animate={{opacity:1}}>
+      <div className={styles.world}><SpatialWorld objects={objects} output={output} selectedId={selectedId} waves={waves} field={field} paths={paths} xray={xray} cameraView={view} cameraRevision={cameraRevision} focusSelected={focusSelected} toolMode={tool} onSelect={(id)=>{setSelectedId(id);setFocusSelected(false)}} onMove={(id,x,z)=>update(id,{x,y:z})} onMoving={setMoving}/></div>
+      <header className={styles.sandboxTop}><button className={styles.mark} onClick={()=>setEntered(false)}>V/E</button><div><b>SPATIAL SIGNAL LAB</b><span><i/> SIMULATION LIVE</span></div><select aria-label="Scenario" value={scenario} onChange={e=>load(e.target.value)}>{Object.keys(presets).map(name=><option key={name}>{name}</option>)}</select><button onClick={()=>setHelp(true)} aria-label="Help"><CircleHelp/></button></header>
+      <div className={styles.viewControls} aria-label="Camera views"><button data-active={view==="perspective"&&!focusSelected} onClick={()=>{setView("perspective");setFocusSelected(false);setCameraRevision(v=>v+1)}}>PERSPECTIVE</button><button data-active={view==="top"&&!focusSelected} onClick={()=>{setView("top");setFocusSelected(false);setCameraRevision(v=>v+1)}}>TOP</button><button data-active={view==="signal"&&!focusSelected} onClick={()=>{setView("signal");setFocusSelected(false);setCameraRevision(v=>v+1)}}>SIGNAL VIEW</button><button onClick={()=>{setView("perspective");setFocusSelected(false);setCameraRevision(v=>v+1)}}>RESET</button></div>
+      <div className={styles.modeControls}><button data-active={waves} onClick={()=>setWaves(v=>!v)}><Waves/> WAVES</button><button data-active={field} onClick={()=>setField(v=>!v)}><Focus/> FIELD</button><button data-active={paths} onClick={()=>setPaths(v=>!v)}><Crosshair/> PATHS</button><button data-active={xray} onClick={()=>setXray(v=>!v)}><Eye/> X-RAY</button></div>
+      <div className={styles.addArea}><button className={styles.addButton} onClick={()=>setShelf(v=>!v)} aria-expanded={shelf}><Plus/> ADD OBJECT</button><AnimatePresence>{shelf&&<motion.aside className={styles.shelf} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:12}}><div><span>OBJECT LIBRARY</span><button onClick={()=>setShelf(false)} aria-label="Close object library"><X/></button></div>{["NETWORK","SMART DEVICES","PEOPLE","ENVIRONMENT"].map(category=><section key={category}><h2>{category}</h2>{library.filter(x=>x.category===category).map(entry=><button key={`${entry.kind}-${entry.label}`} onClick={()=>add(entry)}><entry.Icon/><span>{entry.label}</span><Plus/></button>)}</section>)}</motion.aside>}</AnimatePresence></div>
+      {selected&&<aside className={styles.context}><div><span>{selected.kind.toUpperCase()}</span><button onClick={()=>setSelectedId(null)} aria-label="Close inspector"><X/></button></div><h2>{selected.label}</h2>{selected.kind==="router"&&<><label>POWER <button data-on={selected.power!==false} onClick={()=>update(selected.id,{power:selected.power===false})}>{selected.power===false?"OFF":"ON"}</button></label><label>SIM. STRENGTH <input aria-label="Simulated transmit strength" type="range" min="20" max="100" value={selected.strength??80} onChange={e=>update(selected.id,{strength:Number(e.target.value)})}/><b>{selected.strength??80}%</b></label></>}{selected.kind==="receiver"&&<dl><dt>CONNECTION</dt><dd>{reading?.quality??"Disconnected"}</dd><dt>SIM. SIGNAL</dt><dd>{reading?.value??0} / 100</dd></dl>}{selected.kind==="person"&&<dl><dt>STATE</dt><dd>{moving||playing?"MOVING":"STILL"}</dd><dt>DETECTION</dt><dd>{output.presence}</dd></dl>}{selected.kind==="wall"&&<label>MATERIAL <select value={selected.material} onChange={e=>update(selected.id,{material:e.target.value as Material})}>{Object.keys(MATERIAL_LOSS).map(m=><option key={m}>{m}</option>)}</select></label>}<div className={styles.objectActions}><button onClick={()=>{setFocusSelected(true);setCameraRevision(v=>v+1)}}><Focus/> FOCUS</button><button onClick={duplicate}><Copy/> DUPLICATE</button></div><button className={styles.remove} onClick={remove}><Trash2/> DELETE OBJECT</button></aside>}
+      <div className={styles.transformBar}><button data-active={editorMode==="EXPLORE"} onClick={()=>setEditorMode("EXPLORE")}>EXPLORE</button><button data-active={editorMode==="BUILD"} onClick={()=>{setEditorMode("BUILD");setObjects([]);setSelectedId(null);setShelf(true)}}>BUILD</button><button data-active={tool==="move"} onClick={()=>setTool("move")}><Move3d/><kbd>W</kbd> MOVE</button><button data-active={tool==="rotate"} onClick={()=>setTool("rotate")}><Rotate3d/><kbd>E</kbd> ROTATE</button><span>ARROWS / ADJUST</span></div>
+      <button className={styles.play} data-active={playing} onClick={()=>setPlaying(v=>!v)}>{playing?<Pause/>:<Play/>}{playing?"PAUSE EXPERIMENT":"PLAY MOVEMENT"}</button>
+      <div className={styles.readout}><span>{output.presence}</span><b>{Object.values(output.readings)[0]?.quality?.toUpperCase()??"NO RECEIVER"}</b><small>{editorMode} MODE · SIMULATED / NOT RF DATA</small></div>
+    </motion.section>}</AnimatePresence>
+    <AnimatePresence>{help&&<motion.div className={styles.helpBackdrop} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setHelp(false)}><aside role="dialog" aria-modal="true" aria-label="Spatial playground controls" onClick={e=>e.stopPropagation()}><button onClick={()=>setHelp(false)} aria-label="Close help"><X/></button><span>DIRECT MANIPULATION</span><h2>The world is the interface.</h2><ol><li><b>POINTER</b> Orbit, zoom, select and drag objects</li><li><b>W</b> Move selected object with pointer or arrows</li><li><b>E</b> Rotate selected object with left/right arrows</li><li><b>DELETE</b> Remove selected object</li><li><b>ESC</b> Clear selection and close panels</li></ol><p>This is a deterministic educational visualization—not real WiFi sensing, CSI measurement, or human tracking.</p></aside></motion.div>}</AnimatePresence>
+  </main>
+}

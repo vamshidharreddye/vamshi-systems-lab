@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
-import { SystemShell } from "@/components/shell/SystemShell";
+import { XRayProvider } from "@/components/xray/XRayProvider";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   authors: [{ name: "Vamshi Endurthi" }],
   creator: "Vamshi Endurthi",
-  keywords: ["software engineering", "AI systems", "distributed systems", "cloud infrastructure", "observability"],
+  keywords: ["WiFi simulation", "wireless propagation", "interactive RF", "signal playground", "software engineering"],
   openGraph: { title: siteConfig.name, description: siteConfig.description, siteName: siteConfig.name, type: "website" },
   twitter: { card: "summary_large_image", title: siteConfig.name, description: siteConfig.description },
   robots: { index: true, follow: true }
@@ -34,5 +34,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#070a0c", colorScheme: "dark", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body className={`${instrument.variable} ${plexMono.variable}`}><SystemShell>{children}</SystemShell></body></html>;
+  return <html lang="en" suppressHydrationWarning><body className={`${instrument.variable} ${plexMono.variable}`}><XRayProvider>{children}</XRayProvider></body></html>;
 }
